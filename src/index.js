@@ -1,6 +1,6 @@
 const mysql = require('mysql');
 
-class MySQL {
+class Prohairesis {
 
     constructor(config) {
         this.pool = mysql.createPool(config);
@@ -44,4 +44,4 @@ class MySQL {
     }
 }
 
-module.exports = MySQL;
+module.exports = Prohairesis;

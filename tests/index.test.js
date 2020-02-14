@@ -1,6 +1,6 @@
-const MySQL = require('../src/index');
+const Prohairesis = require('../src/index');
 
 test('create new instance', () => {
-    const database = new MySQL('mysql://user:pass...');
+    const database = new Prohairesis('mysql://user:pass...');
     expect(database).toBeInstanceOf(MySQL);
 });
