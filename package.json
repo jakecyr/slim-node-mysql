@@ -1,0 +1,24 @@
+{
+    "name": "prohairesis",
+    "version": "1.0.1",
+    "description": "MySQL database class to abstract pooling and prepared statements",
+    "keywords": [
+        "mysql",
+        "database",
+        "abstract"
+    ],
+    "main": "src/index.js",
+    "scripts": {
+        "start": ""
+    },
+    "author": "Jake Cyr",
+    "license": "ISC",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/jakecyr/prohairesis.git"
+    },
+    "bugs": {
+        "url": "https://github.com/jakecyr/prohairesis/issues"
+    },
+    "homepage": "https://github.com/jakecyr/prohairesis#readme"
+}
