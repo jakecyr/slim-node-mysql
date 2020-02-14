@@ -3,8 +3,7 @@ const mysql = require('mysql');
 class MySQL {
 
     constructor(config) {
-        this.config = config;
-        this.pool = mysql.createPool(this.config);
+        this.pool = mysql.createPool(config);
     }
     getConnection() {
         return new Promise((resolve, reject) => {
