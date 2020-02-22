@@ -46,14 +46,14 @@ export class Prohairesis {
         });
     }
     getOne<TableModel, Params>(sql: string, params: Params): Promise<TableModel> {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             this
                 .query<TableModel, Params>(sql, params)
                 .then((results: TableModel[]) => {
                     if (results && results.length > 0) {
                         resolve(results[0]);
                     } else {
-                        reject(null);
+                        resolve(null);
                     }
                 });
         });
@@ -66,7 +66,7 @@ export class Prohairesis {
                     if (result) {
                         resolve(result[column]);
                     } else {
-                        reject(null);
+                        resolve(null);
                     }
                 })
                 .catch(reject);
