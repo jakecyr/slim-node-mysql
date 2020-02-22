@@ -75,7 +75,7 @@ export class Prohairesis {
     exists<TableModel, Params>(sql: string, params: Params): Promise<boolean> {
         return new Promise((resolve, reject) => {
             this
-                .query<TableModel, Params>(sql, params)
+                .getOne<TableModel, Params>(sql, params)
                 .then((result) => resolve(!!result))
                 .catch(reject);
         });
