@@ -1,6 +1,6 @@
 {
     "name": "prohairesis",
-    "version": "1.1.0",
+    "version": "1.1.1",
     "description": "MySQL database class to abstract pooling and prepared statements",
     "keywords": [
         "mysql",
@@ -13,6 +13,7 @@
         "start": "node dist/index.js",
         "prepack": "tsc",
         "build": "tsc",
+        "build-watch": "tsc -w",
         "test": "jest"
     },
     "author": "Jake Cyr",

@@ -47,7 +47,7 @@ export class Prohairesis {
     }
     getOne<TableModel, Params>(sql: string, params: Params): Promise<TableModel> {
         return new Promise((resolve, reject) => {
-            return this
+            this
                 .query<TableModel, Params>(sql, params)
                 .then((results: TableModel[]) => {
                     if (results && results.length > 0) {
@@ -56,7 +56,6 @@ export class Prohairesis {
                         reject(null);
                     }
                 });
-
         });
     }
     getValue<TableModel, Params>(column: string, sql: string, params: Params): Promise<any> {
@@ -74,9 +73,12 @@ export class Prohairesis {
         });
     }
     exists<TableModel, Params>(sql: string, params: Params): Promise<boolean> {
-        return this
-            .query<TableModel, Params>(sql, params)
-            .then((result) => !!result);
+        return new Promise((resolve, reject) => {
+            this
+                .query<TableModel, Params>(sql, params)
+                .then((result) => resolve(!!result))
+                .catch(reject);
+        });
     }
     execute<TableModel, Params>(sql: string, params: Params): Promise<TableModel[]> {
         return this.query<TableModel, Params>(sql, params);
