@@ -76,7 +76,7 @@ export class Prohairesis {
         return new Promise((resolve, reject) => {
             this
                 .getOne<TableModel, Params>(sql, params)
-                .then((result) => resolve(!!result))
+                .then((result) => resolve(result !== null))
                 .catch(reject);
         });
     }
