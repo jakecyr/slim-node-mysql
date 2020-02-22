@@ -1,15 +1,18 @@
 {
     "name": "prohairesis",
-    "version": "1.0.5",
+    "version": "1.1.0",
     "description": "MySQL database class to abstract pooling and prepared statements",
     "keywords": [
         "mysql",
         "database",
         "abstract"
     ],
-    "main": "src/index.js",
+    "main": "dist/index.js",
     "scripts": {
-        "start": "",
+        "prestart": "tsc",
+        "start": "node dist/index.js",
+        "prepack": "tsc",
+        "build": "tsc",
         "test": "jest"
     },
     "author": "Jake Cyr",
@@ -23,7 +26,9 @@
     },
     "homepage": "https://github.com/jakecyr/prohairesis#readme",
     "devDependencies": {
-        "jest": "^25.1.0"
+        "@types/mysql": "^2.15.8",
+        "jest": "^25.1.0",
+        "typescript": "^3.8.2"
     },
     "dependencies": {
         "mysql": "^2.18.1"

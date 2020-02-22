@@ -1,21 +1,13 @@
-// @ts-check
+import { createPool, Pool, PoolConfig, PoolConnection, MysqlError } from 'mysql';
 
-const mysql = require('mysql');
+export class Prohairesis {
 
-class Prohairesis {
+    pool: Pool;
 
-    /**
-     * @param {string} config 
-     */
-    constructor(config) {
-        this.pool = mysql.createPool(config);
+    constructor(config: (string | PoolConfig)) {
+        this.pool = createPool(config);
     }
-    /**
-     * @param {string} sql
-     * @param {{ [x: string]: any; }} values
-     * @param {Function} formatter
-     */
-    query(sql, values, formatter = null) {
+    query<TableModel, Params>(sql: string, values: Params): Promise<TableModel[]> {
         return new Promise((resolve, reject) => {
             this.getConnection()
                 .then((connection) => {
@@ -40,77 +32,57 @@ class Prohairesis {
                         }
                     }
 
-                    /**
-                     * @param {string} error
-                     * @param {any} results
-                     */
-                    connection.query(preparedSQL, preparedValues, (error, results) => {
+                    connection.query(preparedSQL, preparedValues, (err: MysqlError | null, results: TableModel[]) => {
                         connection.release();
 
-                        if (error) {
-                            reject(error)
+                        if (err) {
+                            reject(err);
                         } else {
-                            if (formatter) {
-                                resolve(formatter(results));
-                            } else {
-                                resolve(results);
-                            }
+                            resolve(results);
                         }
                     });
                 })
                 .catch(reject);
         });
     }
-    /**
-     * @param {string} sql
-     * @param {{ [x: string]: any; }} params
-     * @returns {object}
-     */
-    getOne(sql, params) {
-        return this.query(sql, params, (results) => results && results.length > 0 ? results[0] : null);
+    getOne<TableModel, Params>(sql: string, params: Params): Promise<TableModel> {
+        return new Promise((resolve, reject) => {
+            return this
+                .query<TableModel, Params>(sql, params)
+                .then((results: TableModel[]) => {
+                    if (results && results.length > 0) {
+                        resolve(results[0]);
+                    } else {
+                        reject(null);
+                    }
+                });
+
+        });
     }
-    /**
-     * 
-     * @param {string} column 
-     * @param {string} sql 
-     * @param {object} params 
-     * @returns {any} Value from referenced column
-     */
-    getValue(column, sql, params) {
+    getValue<TableModel, Params>(column: string, sql: string, params: Params): Promise<any> {
         return new Promise((resolve, reject) => {
             this
-                .getOne(sql, params)
-                .then((result) => {
+                .getOne<TableModel, Params>(sql, params)
+                .then((result: TableModel) => {
                     if (result) {
                         resolve(result[column]);
                     } else {
-                        resolve(null);
+                        reject(null);
                     }
                 })
                 .catch(reject);
         });
     }
-    /**
-     * @param {string} sql
-     * @param {{ [x: string]: any; }} params
-     * @returns {Promise<boolean>}
-     */
-    exists(sql, params) {
-        return this.query(sql, params, (result) => !!result);
+    exists<TableModel, Params>(sql: string, params: Params): Promise<boolean> {
+        return this
+            .query<TableModel, Params>(sql, params)
+            .then((result) => !!result);
     }
-    /**
-     * @param {string} sql
-     * @param {{ [x: string]: any; }} params
-     */
-    execute(sql, params) {
-        return this.query(sql, params);
+    execute<TableModel, Params>(sql: string, params: Params): Promise<TableModel[]> {
+        return this.query<TableModel, Params>(sql, params);
     }
-    /**
-     * @param {string} table
-     * @param {{ [x: string]: any; }} data
-     */
-    insert(table, data) {
-        return this.query(`
+    insert<TableModel, Params>(table: string, data: Params) {
+        return this.query<TableModel, Params>(`
 			INSERT INTO ${table} (
 				${ Object.keys(data).join(',')}
 			) VALUES (
@@ -120,10 +92,7 @@ class Prohairesis {
             ...data
         });
     }
-    /**
-     * @returns {Promise<any>}
-     */
-    getConnection() {
+    getConnection(): Promise<PoolConnection> {
         return new Promise((resolve, reject) => {
             try {
                 this.pool.getConnection((error, connection) => {
@@ -138,12 +107,9 @@ class Prohairesis {
             }
         });
     }
-    close() {
+    close(): void {
         if (this.pool) {
             this.pool.end();
         }
     }
-
 }
-
-module.exports = Prohairesis;
