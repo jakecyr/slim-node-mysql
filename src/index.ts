@@ -1,4 +1,5 @@
 import { createPool, Pool, PoolConfig, PoolConnection, MysqlError } from 'mysql';
+import { readFile } from 'fs';
 
 export class Prohairesis {
 
@@ -114,4 +115,18 @@ export class Prohairesis {
             this.pool.end();
         }
     }
-}
+    queryFromFile<TableModel, Params>(filePath: string, params?: Params): Promise<TableModel[]> {
+        return new Promise((resolve, reject) => {
+            readFile(filePath, (err, data) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    this
+                        .query<TableModel, Params>(data.toString(), params)
+                        .then((data: TableModel[]) => resolve(data))
+                        .catch((err: Error) => reject(err));
+                }
+            });
+        });
+    }
+}   
