@@ -10,26 +10,28 @@ export class Prohairesis {
     }
     query<TableModel, Params>(sql: string, values: Params): Promise<TableModel[]> {
         return new Promise((resolve, reject) => {
-            this.getConnection()
+            this
+                .getConnection()
                 .then((connection) => {
                     let preparedValues = undefined;
                     let preparedSQL = sql;
 
                     if (values) {
-                        let valueIndex = {};
+                        let results = /@([A-Za-z]+)/.exec(preparedSQL);
 
-                        for (let key in values) {
-                            if (!preparedValues) preparedValues = [];
-                            valueIndex[sql.indexOf(':' + key)] = key;
-                            preparedSQL = preparedSQL.replace(':' + key, '?');
-                        }
+                        preparedValues = [];
 
-                        const valueIndices = Object
-                            .keys(valueIndex)
-                            .sort((a, b) => a > b ? 1 : -1);
+                        while (results && results.length == 2) {
+                            const [match, key] = results;
 
-                        for (let index of valueIndices) {
-                            preparedValues.push(values[valueIndex[index]])
+                            if (values.hasOwnProperty(key)) {
+                                preparedValues.push(values[key]);
+                                preparedSQL = preparedSQL.replace(match, '?');
+                            } else {
+                                return reject(`Values object is missing value key/value for ${key}`);
+                            }
+
+                            results = /@([A-Za-z]+)/.exec(preparedSQL);
                         }
                     }
 
