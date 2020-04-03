@@ -10,42 +10,35 @@ export class Prohairesis {
     }
     query<TableModel, Params>(sql: string, values: Params): Promise<TableModel[]> {
         return new Promise((resolve, reject) => {
-            this
-                .getConnection()
-                .then((connection) => {
-                    let preparedValues = undefined;
-                    let preparedSQL = sql;
+            let preparedValues = undefined;
+            let preparedSQL = sql;
 
-                    if (values) {
-                        let results = /@([A-Za-z]+)/.exec(preparedSQL);
+            if (values) {
+                let results = /@([A-Za-z]+)/.exec(preparedSQL);
 
-                        preparedValues = [];
+                preparedValues = [];
 
-                        while (results && results.length == 2) {
-                            const [match, key] = results;
+                while (results && results.length == 2) {
+                    const [match, key] = results;
 
-                            if (values.hasOwnProperty(key)) {
-                                preparedValues.push(values[key]);
-                                preparedSQL = preparedSQL.replace(match, '?');
-                            } else {
-                                return reject(`Values object is missing value key/value for ${key}`);
-                            }
-
-                            results = /@([A-Za-z]+)/.exec(preparedSQL);
-                        }
+                    if (values.hasOwnProperty(key)) {
+                        preparedValues.push(values[key]);
+                        preparedSQL = preparedSQL.replace(match, '?');
+                    } else {
+                        return reject(`Values object is missing value key/value for ${key}`);
                     }
 
-                    connection.query(preparedSQL, preparedValues, (err: MysqlError | null, results: TableModel[]) => {
-                        connection.release();
+                    results = /@([A-Za-z]+)/.exec(preparedSQL);
+                }
+            }
 
-                        if (err) {
-                            reject(err);
-                        } else {
-                            resolve(results);
-                        }
-                    });
-                })
-                .catch(reject);
+            this.pool.query(preparedSQL, preparedValues, (err: MysqlError | null, results: TableModel[]) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(results);
+                }
+            });
         });
     }
     getOne<TableModel, Params>(sql: string, params: Params): Promise<TableModel> {
