@@ -84,7 +84,7 @@ export class Prohairesis {
 			INSERT INTO ${table} (
 				${ Object.keys(data).join(',')}
 			) VALUES (
-				${ Object.keys(data).map((v) => ':' + v).join(`, `)}
+				${ Object.keys(data).map((v) => '@' + v).join(`, `)}
 			)
 		`, {
             ...data
