@@ -14,7 +14,7 @@ export class Prohairesis {
             let preparedSQL = sql;
 
             if (values) {
-                let results = /@([A-Za-z]+)/.exec(preparedSQL);
+                let results = /@([A-Za-z_]+)/.exec(preparedSQL);
 
                 preparedValues = [];
 
@@ -28,7 +28,7 @@ export class Prohairesis {
                         return reject(`Values object is missing value key/value for ${key}`);
                     }
 
-                    results = /@([A-Za-z]+)/.exec(preparedSQL);
+                    results = /@([A-Za-z_]+)/.exec(preparedSQL);
                 }
             }
 
