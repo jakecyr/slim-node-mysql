@@ -1,12 +1,19 @@
 import { createPool, Pool, PoolConfig, PoolConnection, MysqlError } from 'mysql';
 import { readFile } from 'fs';
 
+let pool = null;
+
 export class Prohairesis {
 
     pool: Pool;
 
     constructor(config: (string | PoolConfig)) {
-        this.pool = createPool(config);
+        if (pool) {
+            this.pool = pool;
+        } else {
+            pool = createPool(config);
+            this.pool = pool;
+        }
     }
     query<TableModel, Params>(sql: string, values: Params): Promise<TableModel[]> {
         return new Promise((resolve, reject) => {
