@@ -1,4 +1,4 @@
-import { createPool, Pool, PoolConfig, PoolConnection, MysqlError } from 'mysql';
+import { createPool, Pool, PoolConfig, PoolConnection, MysqlError, OkPacket } from 'mysql';
 import { readFile } from 'fs';
 
 let pool = null;
@@ -15,7 +15,7 @@ export class Prohairesis {
             this.pool = pool;
         }
     }
-    query<TableModel, Params>(sql: string, values: Params): Promise<TableModel[]> {
+    query<TableModel, Params>(sql: string, values?: Params): Promise<TableModel[]> {
         return new Promise((resolve, reject) => {
             let preparedValues = undefined;
             let preparedSQL = sql;
@@ -44,6 +44,39 @@ export class Prohairesis {
                     reject(err);
                 } else {
                     resolve(results);
+                }
+            });
+        });
+    }
+    execute<Params>(sql: string, values?: Params): Promise<OkPacket> {
+        return new Promise((resolve, reject) => {
+            let preparedValues = undefined;
+            let preparedSQL = sql;
+
+            if (values) {
+                let results = /@([A-Za-z_]+)/.exec(preparedSQL);
+
+                preparedValues = [];
+
+                while (results && results.length == 2) {
+                    const [match, key] = results;
+
+                    if (values.hasOwnProperty(key)) {
+                        preparedValues.push(values[key]);
+                        preparedSQL = preparedSQL.replace(match, '?');
+                    } else {
+                        return reject(`Values object is missing value key/value for ${key}`);
+                    }
+
+                    results = /@([A-Za-z_]+)/.exec(preparedSQL);
+                }
+            }
+
+            this.pool.query(preparedSQL, preparedValues, (err: MysqlError | null, response: OkPacket) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(response);
                 }
             });
         });
@@ -83,15 +116,12 @@ export class Prohairesis {
                 .catch(reject);
         });
     }
-    execute<TableModel, Params>(sql: string, params: Params): Promise<TableModel[]> {
-        return this.query<TableModel, Params>(sql, params);
-    }
     insert<TableModel, Params>(table: string, data: Params) {
         return this.query<TableModel, Params>(`
 			INSERT INTO ${table} (
-				${ Object.keys(data).join(',')}
+				${Object.keys(data).join(',')}
 			) VALUES (
-				${ Object.keys(data).map((v) => '@' + v).join(`, `)}
+				${Object.keys(data).map((v) => '@' + v).join(`, `)}
 			)
 		`, {
             ...data

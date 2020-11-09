@@ -1,6 +1,6 @@
 {
     "name": "prohairesis",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "description": "MySQL database class to abstract pooling and prepared statements",
     "keywords": [
         "mysql",
@@ -27,10 +27,10 @@
     },
     "homepage": "https://github.com/jakecyr/prohairesis#readme",
     "devDependencies": {
-        "@types/mysql": "^2.15.8",
+        "@types/mysql": "^2.15.15",
         "dotenv": "^8.2.0",
-        "jest": "^25.1.0",
-        "typescript": "^3.8.2"
+        "jest": "^25.5.4",
+        "typescript": "^3.9.7"
     },
     "dependencies": {
         "mysql": "^2.18.1"
