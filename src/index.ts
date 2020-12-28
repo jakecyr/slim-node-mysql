@@ -15,7 +15,7 @@ export class Prohairesis {
             this.pool = pool;
         }
     }
-    query<TableModel, Params>(sql: string, values?: Params): Promise<TableModel[]> {
+    query<TableModel>(sql: string, values?: Record<string, any>): Promise<TableModel[]> {
         return new Promise((resolve, reject) => {
             let preparedValues = undefined;
             let preparedSQL = sql;
@@ -48,7 +48,7 @@ export class Prohairesis {
             });
         });
     }
-    execute<Params>(sql: string, values?: Params): Promise<OkPacket> {
+    execute(sql: string, values?: Record<string, any>): Promise<OkPacket> {
         return new Promise((resolve, reject) => {
             let preparedValues = undefined;
             let preparedSQL = sql;
@@ -81,10 +81,10 @@ export class Prohairesis {
             });
         });
     }
-    getOne<TableModel, Params>(sql: string, params: Params): Promise<TableModel> {
+    getOne<TableModel>(sql: string, params: Record<string, any>): Promise<TableModel> {
         return new Promise((resolve) => {
             this
-                .query<TableModel, Params>(sql, params)
+                .query<TableModel>(sql, params)
                 .then((results: TableModel[]) => {
                     if (results && results.length > 0) {
                         resolve(results[0]);
@@ -94,10 +94,10 @@ export class Prohairesis {
                 });
         });
     }
-    getValue<TableModel, Params>(column: string, sql: string, params: Params): Promise<any> {
+    getValue<TableModel>(column: string, sql: string, params: Record<string, any>): Promise<any> {
         return new Promise((resolve, reject) => {
             this
-                .getOne<TableModel, Params>(sql, params)
+                .getOne<TableModel>(sql, params)
                 .then((result: TableModel) => {
                     if (result) {
                         resolve(result[column]);
@@ -108,20 +108,20 @@ export class Prohairesis {
                 .catch(reject);
         });
     }
-    exists<TableModel, Params>(sql: string, params: Params): Promise<boolean> {
+    exists<TableModel>(sql: string, params: Record<string, any>): Promise<boolean> {
         return new Promise((resolve, reject) => {
             this
-                .getOne<TableModel, Params>(sql, params)
+                .getOne<TableModel>(sql, params)
                 .then((result) => resolve(result !== null))
                 .catch(reject);
         });
     }
-    insert<TableModel, Params>(table: string, data: Params) {
-        return this.query<TableModel, Params>(`
+    insert(table: string, data: Record<string, any>): Promise<OkPacket> {
+        return this.execute(`
 			INSERT INTO ${table} (
 				${Object.keys(data).join(',')}
 			) VALUES (
-				${Object.keys(data).map((v) => '@' + v).join(`, `)}
+				${Object.keys(data).map((v: string) => '@' + v).join(`, `)}
 			)
 		`, {
             ...data
@@ -147,14 +147,14 @@ export class Prohairesis {
             this.pool.end();
         }
     }
-    queryFromFile<TableModel, Params>(filePath: string, params?: Params): Promise<TableModel[]> {
+    queryFromFile<TableModel>(filePath: string, params?: Record<string, any>): Promise<TableModel[]> {
         return new Promise((resolve, reject) => {
             readFile(filePath, (err, data) => {
                 if (err) {
                     reject(err);
                 } else {
                     this
-                        .query<TableModel, Params>(data.toString(), params)
+                        .query<TableModel>(data.toString(), params)
                         .then((data: TableModel[]) => resolve(data))
                         .catch((err: Error) => reject(err));
                 }
