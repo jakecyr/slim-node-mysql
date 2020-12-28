@@ -82,39 +82,35 @@ export class Prohairesis {
         });
     }
     getOne<TableModel>(sql: string, params: Record<string, any>): Promise<TableModel> {
-        return new Promise((resolve) => {
-            this
-                .query<TableModel>(sql, params)
-                .then((results: TableModel[]) => {
-                    if (results && results.length > 0) {
-                        resolve(results[0]);
-                    } else {
-                        resolve(null);
-                    }
-                });
-        });
+        return this
+            .query<TableModel>(sql, params)
+            .then((results: TableModel[]) => {
+                if (results && results.length > 0) {
+                    return results[0];
+                } else {
+                    return null;
+                }
+            });
     }
-    getValue<TableModel>(column: string, sql: string, params: Record<string, any>): Promise<any> {
-        return new Promise((resolve, reject) => {
-            this
-                .getOne<TableModel>(sql, params)
-                .then((result: TableModel) => {
-                    if (result) {
-                        resolve(result[column]);
-                    } else {
-                        resolve(null);
-                    }
-                })
-                .catch(reject);
-        });
+    getValue<TableModel, K extends keyof TableModel>(
+        column: K,
+        sql: string,
+        params: Record<string, any>,
+    ): Promise<TableModel[K]> {
+        return this
+            .getOne<TableModel>(sql, params)
+            .then((result: TableModel) => {
+                if (result) {
+                    return result[column];
+                } else {
+                    return null;
+                }
+            });
     }
     exists<TableModel>(sql: string, params: Record<string, any>): Promise<boolean> {
-        return new Promise((resolve, reject) => {
-            this
-                .getOne<TableModel>(sql, params)
-                .then((result) => resolve(result !== null))
-                .catch(reject);
-        });
+        return this
+            .getOne<TableModel>(sql, params)
+            .then((result: TableModel) => result !== null);
     }
     insert(table: string, data: Record<string, any>): Promise<OkPacket> {
         return this.execute(`
