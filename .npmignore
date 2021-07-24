@@ -2,3 +2,8 @@ src
 tsconfig.json
 .gitignore
 tests
+.prettierrc
+.npmignore
+examples
+babel.config.js
+__mocks__

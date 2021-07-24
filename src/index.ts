@@ -4,16 +4,14 @@ import { readFile } from 'fs';
 let pool = null;
 
 export class Prohairesis {
-
     pool: Pool;
 
-    constructor(config: (string | PoolConfig)) {
-        if (pool) {
-            this.pool = pool;
-        } else {
+    constructor(config: string | PoolConfig) {
+        if (pool === null) {
             pool = createPool(config);
-            this.pool = pool;
         }
+
+        this.pool = pool;
     }
     query<TableModel>(sql: string, values?: Record<string, any>): Promise<TableModel[]> {
         return new Promise((resolve, reject) => {
@@ -28,11 +26,11 @@ export class Prohairesis {
                 while (results && results.length == 2) {
                     const [match, key] = results;
 
-                    if (values.hasOwnProperty(key)) {
+                    if (key in values) {
                         preparedValues.push(values[key]);
                         preparedSQL = preparedSQL.replace(match, '?');
                     } else {
-                        return reject(`Values object is missing value key/value for ${key}`);
+                        return reject(`Values object is missing value key / value for ${key}`);
                     }
 
                     results = /@([A-Za-z_]+)/.exec(preparedSQL);
@@ -81,47 +79,42 @@ export class Prohairesis {
             });
         });
     }
-    getOne<TableModel>(sql: string, params: Record<string, any>): Promise<TableModel> {
-        return this
-            .query<TableModel>(sql, params)
-            .then((results: TableModel[]) => {
-                if (results && results.length > 0) {
-                    return results[0];
-                } else {
-                    return null;
-                }
-            });
+    async getOne<TableModel>(sql: string, params: Record<string, any>): Promise<TableModel> {
+        const results = await this.query<TableModel>(sql, params);
+        
+        if (results && results.length > 0) {
+            return results[0];
+        } else {
+            return null;
+        }
     }
-    getValue<TableModel, K extends keyof TableModel>(
-        column: K,
-        sql: string,
-        params: Record<string, any>,
-    ): Promise<TableModel[K]> {
-        return this
-            .getOne<TableModel>(sql, params)
-            .then((result: TableModel) => {
-                if (result) {
-                    return result[column];
-                } else {
-                    return null;
-                }
-            });
+    getValue<TableModel, K extends keyof TableModel>(column: K, sql: string, params: Record<string, any>): Promise<TableModel[K]> {
+        return this.getOne<TableModel>(sql, params).then((result: TableModel) => {
+            if (result) {
+                return result[column];
+            } else {
+                return null;
+            }
+        });
     }
     exists<TableModel>(sql: string, params: Record<string, any>): Promise<boolean> {
-        return this
-            .getOne<TableModel>(sql, params)
-            .then((result: TableModel) => result !== null);
+        return this.getOne<TableModel>(sql, params).then((result: TableModel) => result !== null);
     }
     insert(table: string, data: Record<string, any>): Promise<OkPacket> {
-        return this.execute(`
+        return this.execute(
+            `
 			INSERT INTO ${table} (
 				${Object.keys(data).join(',')}
 			) VALUES (
-				${Object.keys(data).map((v: string) => '@' + v).join(`, `)}
+				${Object.keys(data)
+                    .map((v: string) => '@' + v)
+                    .join(`, `)}
 			)
-		`, {
-            ...data
-        });
+		`,
+            {
+                ...data,
+            }
+        );
     }
     getConnection(): Promise<PoolConnection> {
         return new Promise((resolve, reject) => {
@@ -149,12 +142,11 @@ export class Prohairesis {
                 if (err) {
                     reject(err);
                 } else {
-                    this
-                        .query<TableModel>(data.toString(), params)
+                    this.query<TableModel>(data.toString(), params)
                         .then((data: TableModel[]) => resolve(data))
                         .catch((err: Error) => reject(err));
                 }
             });
         });
     }
-}   
+}
