@@ -1,9 +1,9 @@
 import { createPool, Pool, PoolConfig, PoolConnection, MysqlError, OkPacket } from 'mysql';
-import { readFile } from 'fs';
+import { readFile } from 'fs-extra';
 
 let pool = null;
 
-export class Prohairesis {
+export class SlimNodeMySQL {
     pool: Pool;
 
     constructor(config: string | PoolConfig) {
@@ -79,26 +79,27 @@ export class Prohairesis {
             });
         });
     }
-    async getOne<TableModel>(sql: string, params: Record<string, any>): Promise<TableModel> {
+    async getOne<TableModel>(sql: string, params: Record<string, any>): Promise<TableModel | null> {
         const results = await this.query<TableModel>(sql, params);
-        
+
         if (results && results.length > 0) {
             return results[0];
         } else {
             return null;
         }
     }
-    getValue<TableModel, K extends keyof TableModel>(column: K, sql: string, params: Record<string, any>): Promise<TableModel[K]> {
-        return this.getOne<TableModel>(sql, params).then((result: TableModel) => {
-            if (result) {
-                return result[column];
-            } else {
-                return null;
-            }
-        });
+    async getValue<TableModel, K extends keyof TableModel>(column: K, sql: string, params: Record<string, any>): Promise<TableModel[K] | null> {
+        const result = await this.getOne<TableModel>(sql, params);
+
+        if (result) {
+            return result[column];
+        } else {
+            return null;
+        }
     }
-    exists<TableModel>(sql: string, params: Record<string, any>): Promise<boolean> {
-        return this.getOne<TableModel>(sql, params).then((result: TableModel) => result !== null);
+    async exists<TableModel>(sql: string, params: Record<string, any>): Promise<boolean> {
+        const result = await this.getOne<TableModel>(sql, params);
+        return result !== null;
     }
     insert(table: string, data: Record<string, any>): Promise<OkPacket> {
         return this.execute(
@@ -134,19 +135,19 @@ export class Prohairesis {
     close(): void {
         if (this.pool) {
             this.pool.end();
+            this.pool = null;
+        }
+
+        if (pool) {
+            pool = null;
         }
     }
-    queryFromFile<TableModel>(filePath: string, params?: Record<string, any>): Promise<TableModel[]> {
-        return new Promise((resolve, reject) => {
-            readFile(filePath, (err, data) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    this.query<TableModel>(data.toString(), params)
-                        .then((data: TableModel[]) => resolve(data))
-                        .catch((err: Error) => reject(err));
-                }
-            });
-        });
+    async queryFromFile<TableModel>(filePath: string, params?: Record<string, any>): Promise<TableModel[]> {
+        try {
+            const data = await readFile(filePath);
+            return this.query<TableModel>(data.toString(), params);
+        } catch (error) {
+            throw error;
+        }
     }
 }

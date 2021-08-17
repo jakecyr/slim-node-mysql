@@ -1,8 +1,8 @@
 require('dotenv').config();
 
-const { Prohairesis } = require('../dist/index');
+const { SlimNodeMySQL } = require('../dist/index');
 
-const db = new Prohairesis(process.env.DATABASE);
+const db = new SlimNodeMySQL(process.env.DATABASE);
 
 db
     .query(`

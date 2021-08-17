@@ -1,14 +1,14 @@
-# Prohairesis
+# Slim Node MySQL
 
 MySQL database class to abstract pooling and prepared statements
 
 ## Installation
 
 ```javascript
-const { Prohairesis } = require('prohairesis');
+const { SlimNodeMySQL } = require('slim-node-mysql');
 
 // create new database instance
-const database = new Prohairesis(env.database);
+const database = new SlimNodeMySQL(env.database);
 ```
 
 ## Methods
