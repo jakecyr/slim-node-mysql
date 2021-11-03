@@ -2,6 +2,21 @@
 
 MySQL database class to abstract pooling and prepared statements.
 
+![Build Status](https://api.travis-ci.com/jakecyr/slim-node-server.svg)
+![Another](https://img.shields.io/npm/v/slim-node-mysql.svg)
+
+## Table of Contents
+
+* [Installation](#installation)
+* [Download](#download)
+* [Example Setup](#example-setup)
+* [Methods](#methods)
+  * [query](#query)
+  * [getOne](#getone)
+  * [getValue](#getvalue)
+  * [execute](#execute)
+  * [exists](#exists)
+
 ## Installation
 
 To install the package from npm run:
@@ -9,6 +24,10 @@ To install the package from npm run:
 ```bash
 npm install slim-node-mysql
 ```
+
+## Download
+
+[Download the latest Slim Node MySQL package.](https://unpkg.com/slim-node-mysql)
 
 ## Example Setup
 
