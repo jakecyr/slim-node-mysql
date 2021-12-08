@@ -1,19 +1,19 @@
-import { createPool, FieldPacket, Pool, PoolOptions } from 'mysql2/promise';
+import { createPool, Pool, PoolOptions } from 'mysql2/promise';
 import { QueryResult } from './models';
 import { PreparedStatement } from './PreparedStatement';
 
 export class SlimNodeMySQLPool {
   private pool: Pool;
 
-  constructor(config: PoolOptions | string) {
+  constructor(config: PoolOptions | string, connectionLimit?: number) {
     if (typeof config === 'string') {
-      this.parseConnectionString(config);
+      this.parseConnectionString(config, connectionLimit);
     } else {
       this.pool = createPool(config);
     }
   }
 
-  parseConnectionString(connectionString: string) {
+  parseConnectionString(connectionString: string, connectionLimit?: number) {
     let host: string;
     let user: string;
     let password: string;
@@ -34,7 +34,7 @@ export class SlimNodeMySQLPool {
     }
 
     this.pool = createPool({
-      connectionLimit: 10,
+      connectionLimit,
       waitForConnections: true,
       host,
       user,

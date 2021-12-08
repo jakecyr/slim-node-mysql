@@ -1,6 +1,6 @@
 {
   "name": "slim-node-mysql",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "MySQL database class to abstract pooling and prepared statements",
   "keywords": [
     "mysql",
