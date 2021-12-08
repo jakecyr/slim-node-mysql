@@ -7,8 +7,8 @@ export type PreparedStatementParameters = Record<string, unknown>;
 export class SlimNodeMySQL {
   protected pool: SlimNodeMySQLPool;
 
-  constructor(config: string | PoolOptions) {
-    this.pool = new SlimNodeMySQLPool(config);
+  constructor(config: string | PoolOptions, connectionLimit?: number) {
+    this.pool = new SlimNodeMySQLPool(config, connectionLimit);
   }
 
   query<TableModel>(sql: string, parameters?: PreparedStatementParameters): Promise<QueryResult<TableModel[]>> {
