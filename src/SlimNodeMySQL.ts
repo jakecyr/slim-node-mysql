@@ -1,4 +1,5 @@
-import { PoolConfig, OkPacket } from 'mysql';
+import { PoolOptions } from 'mysql2';
+import { QueryResult } from './models';
 import { SlimNodeMySQLPool } from './SlimNodeMySQLPool';
 
 export type PreparedStatementParameters = Record<string, unknown>;
@@ -6,53 +7,47 @@ export type PreparedStatementParameters = Record<string, unknown>;
 export class SlimNodeMySQL {
   protected pool: SlimNodeMySQLPool;
 
-  constructor(config: string | PoolConfig) {
+  constructor(config: string | PoolOptions) {
     this.pool = new SlimNodeMySQLPool(config);
   }
 
-  query<TableModel>(sql: string, parameters?: PreparedStatementParameters): Promise<TableModel[]> {
+  query<TableModel>(sql: string, parameters?: PreparedStatementParameters): Promise<QueryResult<TableModel[]>> {
     if (parameters) {
-      return this.pool.query<TableModel[]>(sql, parameters);
+      return this.pool.query<TableModel>(sql, parameters);
     }
 
-    return this.pool.query<TableModel[]>(sql);
+    return this.pool.query<TableModel>(sql);
   }
 
-  execute(sql: string, parameters?: PreparedStatementParameters): Promise<OkPacket> {
-    if (parameters) {
-      return this.pool.query<OkPacket>(sql, parameters);
-    }
+  async getOne<TableModel>(sql: string, parameters?: PreparedStatementParameters): Promise<QueryResult<TableModel>> {
+    const data: QueryResult<TableModel[]> = await this.query<TableModel>(sql, parameters);
 
-    return this.pool.query<OkPacket>(sql);
-  }
-
-  async getOne<TableModel>(sql: string, parameters: PreparedStatementParameters): Promise<TableModel | null> {
-    const results = await this.query<TableModel>(sql, parameters);
-
-    if (results.length === 0) {
+    if (data.length === 0) {
       return null;
     }
 
-    return results[0];
+    return {
+      ...data[0],
+      _fields: data._fields,
+    };
   }
 
   async getValue<TableModel, K extends keyof TableModel>(
     column: K,
     sql: string,
-    parameters: PreparedStatementParameters
+    parameters?: PreparedStatementParameters
   ): Promise<TableModel[K] | null> {
-    const result = await this.getOne<TableModel>(sql, parameters);
+    const data = await this.getOne<TableModel>(sql, parameters);
 
-    if (!result) {
+    if (!data) {
       return null;
     }
 
-    return result[column];
+    return data[column];
   }
 
-  async exists<TableModel>(sql: string, parameters: PreparedStatementParameters): Promise<boolean> {
-    const result = await this.getOne<TableModel>(sql, parameters);
-    return result !== null;
+  async exists<TableModel>(sql: string, parameters?: PreparedStatementParameters): Promise<boolean> {
+    return (await this.getOne<TableModel>(sql, parameters)) !== null;
   }
 
   close(): void {

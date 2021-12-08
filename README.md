@@ -7,15 +7,16 @@ MySQL database class to abstract pooling and prepared statements.
 
 ## Table of Contents
 
-* [Installation](#installation)
-* [Download](#download)
-* [Example Setup](#example-setup)
-* [Methods](#methods)
-  * [query](#query)
-  * [getOne](#getone)
-  * [getValue](#getvalue)
-  * [execute](#execute)
-  * [exists](#exists)
+- [Installation](#installation)
+- [Download](#download)
+- [Example Setup](#example-setup)
+- [Usage](#usage)
+- [Methods](#methods)
+  - [query](#query)
+  - [getOne](#getone)
+  - [getValue](#getvalue)
+  - [execute](#execute)
+  - [exists](#exists)
 
 ## Installation
 
@@ -40,13 +41,30 @@ const { SlimNodeMySQL } = require('slim-node-mysql');
 const database = new SlimNodeMySQL(env.database);
 ```
 
+## Usage
+
+If non-`SELECT` queries are executed, the `QueryResult.data` value will be of `mysql` type `OkPacket` containing the following properties:
+
+```typescript
+interface OkPacket {
+  fieldCount: number;
+  affectedRows: number;
+  changedRows: number;
+  insertId: number;
+  serverStatus: number;
+  warningCount: number;
+  message: string;
+  procotol41: boolean;
+}
+```
+
 ## Methods
 
 ### query
 
 ```typescript
 // returns an array of rows found or an empty array if nothing is found
-const users: User[] = await database.query<User>(
+const data: QueryResult<User> = await database.query<User>(
   `
   SELECT
       *
@@ -61,11 +79,13 @@ const users: User[] = await database.query<User>(
 );
 ```
 
+The returned array contains a property `_fields` that is an array of objects representing the columns of the result set.
+
 ### getOne
 
 ```typescript
 // returns an object with data from the matched row or null if no match was found
-const user: User = await database.getOne<User>(
+const { data, fields }: QueryResult<User> = await database.getOne<User>(
   `
     SELECT
         *
@@ -79,6 +99,8 @@ const user: User = await database.getOne<User>(
   }
 );
 ```
+
+The object contains a property `_fields` that is an array of objects representing the columns of the result set.
 
 ### getValue
 
@@ -100,34 +122,11 @@ const username: string = database.getValue<User, 'username'>(
 );
 ```
 
-### execute
-
-```typescript
-const response: OkPacket = await database.execute(
-  `
-    INSERT INTO User (
-        username,
-        password
-    ) VALUES (
-        @username,
-        SHA2(@password, 256)
-    )
-`,
-  {
-    username: 'jake',
-    password: 'passwordHere',
-  }
-);
-
-// returns an OkPacket object from the MySQL npm package
-console.log(response); // { insertId: 1, affectedRows: 1, etc... }
-```
-
 ### exists
 
 ```typescript
 // returns a boolean value depending on if any rows are returned or not
-const userExists = await database.exists<User>(
+const exists: boolean = await database.exists<User>(
   `
     SELECT *
     FROM User
