@@ -1,4 +1,4 @@
-import { createPool, Pool, PoolOptions } from 'mysql2/promise';
+import { createPool, OkPacket, Pool, PoolOptions } from 'mysql2/promise';
 import { QueryResult } from './models';
 import { PreparedStatement } from './PreparedStatement';
 
@@ -51,6 +51,16 @@ export class SlimNodeMySQLPool {
     }
 
     return this.promiseQuery<ReturnType[]>(sql);
+  }
+
+  execute(sql: string, parameters?: Record<string, unknown>): Promise<OkPacket> {
+    if (parameters) {
+      const preparedStatement = new PreparedStatement(sql, parameters);
+      const { preparedSql, preparedValues } = preparedStatement.prepare();
+      return this.promiseQuery<OkPacket>(preparedSql, preparedValues);
+    }
+
+    return this.promiseQuery<OkPacket>(sql);
   }
 
   private async promiseQuery<ReturnType>(sql: string, preparedValues?: string[]): Promise<QueryResult<ReturnType>> {

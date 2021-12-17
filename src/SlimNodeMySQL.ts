@@ -1,4 +1,4 @@
-import { PoolOptions } from 'mysql2';
+import { PoolOptions, OkPacket } from 'mysql2';
 import { QueryResult } from './models';
 import { SlimNodeMySQLPool } from './SlimNodeMySQLPool';
 
@@ -9,6 +9,14 @@ export class SlimNodeMySQL {
 
   constructor(config: string | PoolOptions, connectionLimit?: number) {
     this.pool = new SlimNodeMySQLPool(config, connectionLimit);
+  }
+
+  execute(sql: string, parameters?: PreparedStatementParameters): Promise<OkPacket> {
+    if (parameters) {
+      return this.pool.execute(sql, parameters);
+    }
+
+    return this.pool.execute(sql);
   }
 
   query<TableModel>(sql: string, parameters?: PreparedStatementParameters): Promise<QueryResult<TableModel[]>> {

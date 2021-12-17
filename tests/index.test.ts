@@ -88,6 +88,14 @@ describe('SlimNodeMySQL', () => {
     });
   });
 
+  describe('execute', () => {
+    it('returns results', async () => {
+      const db = new SlimNodeMySQL(mockConnectionString);
+      const data = await db.execute('select * from table');
+      expect(Array.isArray(data)).toBeTruthy();
+    });
+  });
+
   describe('getOne', () => {
     it('returns a single object', async () => {
       const db = new SlimNodeMySQL(mockConnectionString);
