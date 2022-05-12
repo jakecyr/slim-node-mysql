@@ -42,13 +42,6 @@ describe('SlimNodeMySQL', () => {
       expect(Array.isArray(data)).toBeTruthy();
     });
 
-    it('returns info', async () => {
-      const db = new SlimNodeMySQL(mockConnectionString);
-      const data = await db.query('select * from table');
-      expect(data._fields).toBeDefined();
-      expect(Array.isArray(data._fields)).toBeTruthy();
-    });
-
     it('returns results when passing in params', async () => {
       const db = new SlimNodeMySQL(mockConnectionString);
       const data = await db.query('select * from table where id = @id', { id: 1 });
@@ -78,14 +71,6 @@ describe('SlimNodeMySQL', () => {
 
       expect(error).not.toBeNull();
     });
-
-    it('returns fields', async () => {
-      const db = new SlimNodeMySQL(mockConnectionString);
-      const data = await db.query('select * from table');
-      expect(Array.isArray(data)).toBeTruthy();
-      expect(Array.isArray(data._fields)).toBeTruthy();
-      expect(data._fields.some((row) => row.name === 'name')).toBeTruthy();
-    });
   });
 
   describe('execute', () => {
@@ -108,8 +93,6 @@ describe('SlimNodeMySQL', () => {
       const db = new SlimNodeMySQL(mockConnectionString);
       const data = await db.getOne('select * from table');
       expect(Array.isArray(data)).toBeFalsy();
-      expect(Array.isArray(data._fields)).toBeTruthy();
-      expect(data._fields.some((row) => row.name === 'name')).toBeTruthy();
     });
   });
 

@@ -1,5 +1,4 @@
 import { PoolOptions, OkPacket } from 'mysql2';
-import { QueryResult } from './models';
 import { SlimNodeMySQLPool } from './SlimNodeMySQLPool';
 
 export type PreparedStatementParameters = Record<string, unknown>;
@@ -19,7 +18,7 @@ export class SlimNodeMySQL {
     return this.pool.execute(sql);
   }
 
-  query<TableModel>(sql: string, parameters?: PreparedStatementParameters): Promise<QueryResult<TableModel[]>> {
+  query<TableModel>(sql: string, parameters?: PreparedStatementParameters): Promise<TableModel[]> {
     if (parameters) {
       return this.pool.query<TableModel>(sql, parameters);
     }
@@ -27,8 +26,8 @@ export class SlimNodeMySQL {
     return this.pool.query<TableModel>(sql);
   }
 
-  async getOne<TableModel>(sql: string, parameters?: PreparedStatementParameters): Promise<QueryResult<TableModel>> {
-    const data: QueryResult<TableModel[]> = await this.query<TableModel>(sql, parameters);
+  async getOne<TableModel>(sql: string, parameters?: PreparedStatementParameters): Promise<TableModel> {
+    const data: TableModel[] = await this.query<TableModel>(sql, parameters);
 
     if (data.length === 0) {
       return null;
@@ -36,7 +35,6 @@ export class SlimNodeMySQL {
 
     return {
       ...data[0],
-      _fields: data._fields,
     };
   }
 

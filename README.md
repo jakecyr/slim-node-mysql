@@ -43,7 +43,7 @@ const database = new SlimNodeMySQL(env.database);
 
 ## Usage
 
-If non-`SELECT` queries are executed, the `QueryResult.data` value will be of `mysql` type `OkPacket` containing the following properties:
+If non-`SELECT` queries are executed, the resulting value will be of the `mysql` type `OkPacket` containing the following properties:
 
 ```typescript
 interface OkPacket {
@@ -64,7 +64,7 @@ interface OkPacket {
 
 ```typescript
 // returns an array of rows found or an empty array if nothing is found
-const data: QueryResult<User> = await database.query<User>(
+const data: User = await database.query<User>(
   `
   SELECT
       *
@@ -79,13 +79,11 @@ const data: QueryResult<User> = await database.query<User>(
 );
 ```
 
-The returned array contains a property `_fields` that is an array of objects representing the columns of the result set.
-
 ### getOne
 
 ```typescript
 // returns an object with data from the matched row or null if no match was found
-const { data, fields }: QueryResult<User> = await database.getOne<User>(
+const data: User = await database.getOne<User>(
   `
     SELECT
         *
@@ -99,8 +97,6 @@ const { data, fields }: QueryResult<User> = await database.getOne<User>(
   }
 );
 ```
-
-The object contains a property `_fields` that is an array of objects representing the columns of the result set.
 
 ### getValue
 
