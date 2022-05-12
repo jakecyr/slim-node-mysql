@@ -1,6 +1,6 @@
 {
   "name": "slim-node-mysql",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "MySQL database class to abstract pooling and prepared statements",
   "keywords": [
     "mysql",
@@ -32,15 +32,15 @@
   },
   "homepage": "https://github.com/jakecyr/slim-node-mysql#readme",
   "peerDependencies": {
-    "@types/mysql": "^2.15.16"
+    "@types/mysql": "^2.15.21"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.16.0",
-    "@babel/preset-typescript": "^7.16.0",
-    "@types/jest": "^27.0.1",
-    "jest": "^27.3.1",
-    "prettier": "^2.4.0",
-    "typescript": "^4.4.4"
+    "@babel/preset-env": "^7.16.7",
+    "@babel/preset-typescript": "^7.16.7",
+    "@types/jest": "^27.5.1",
+    "jest": "^28.1.0",
+    "prettier": "^2.6.2",
+    "typescript": "^4.6.4"
   },
   "dependencies": {
     "mysql2": "^2.3.3"
