@@ -1,7 +1,4 @@
-# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
-# For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
-
-name: Node.js Package
+name: NPM Publish
 
 on:
   release:
@@ -27,9 +24,17 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
+          token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+          ref: ${{ github.head_ref }}
       - run: npm install
+      - run: git reset --hard HEAD
       - run: npm run build
-      - run: npm version ${{ github.event.release.tag_name }}
+      - run: git status
+      - run: git config --global user.name '${{ github.event.release.author.login }}'
+      - run: git config --global user.email '${{ github.event.release.author.email }}'
+      - run: npm version ${{ github.event.release.tag_name }} --no-git-tag-version
+      - run: git add package.json
+      - run: git commit -m "Change version to ${{ github.event.release.tag_name }}"
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.npm_token}}
