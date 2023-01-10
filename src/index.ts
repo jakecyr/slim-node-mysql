@@ -1,7 +1,7 @@
 import { SlimNodeMySQL } from './SlimNodeMySQL';
-import { OkPacket } from 'mysql2';
+import { ExecuteResult } from './models/ExecuteResult';
 
-export * from './PreparedStatementError';
+export * from './errors/index';
 export { SlimNodeMySQL };
+export { ExecuteResult };
 export default SlimNodeMySQL;
-export { OkPacket };

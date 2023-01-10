@@ -13,10 +13,14 @@ MySQL database class to abstract pooling and prepared statements.
 - [Usage](#usage)
 - [Methods](#methods)
   - [query](#query)
+  - [execute](#execute)
   - [getOne](#getone)
   - [getValue](#getvalue)
   - [execute](#execute)
   - [exists](#exists)
+- [Testing](#testing)
+  - [Unit Tests](#unit-tests)
+  - [Functional Tests](#functional-tests)
 
 ## Installation
 
@@ -43,10 +47,10 @@ const database = new SlimNodeMySQL(env.database);
 
 ## Usage
 
-If non-`SELECT` queries are executed, the resulting value will be of the `mysql` type `OkPacket` containing the following properties:
+If non-`SELECT` queries are executed, the resulting value will be of the type `ExecuteResult` containing the following properties:
 
 ```typescript
-interface OkPacket {
+interface ExecuteResult {
   fieldCount: number;
   affectedRows: number;
   changedRows: number;
@@ -79,6 +83,48 @@ const data: User = await database.query<User>(
 );
 ```
 
+### execute
+
+Used to run all non-SELECT queries.
+
+Example update:
+
+```typescript
+const result: ExecuteResult = await database.execute(
+  `
+    UPDATE User
+    SET username = @username
+    WHERE id = @id
+  `,
+  {
+    id: 1,
+    username: 'newUsername',
+  }
+);
+
+console.log(result.affectedRows); // 1
+console.log(result.changedRows); // 1
+```
+
+Example insert:
+
+```typescript
+const result: ExecuteResult = await database.execute(
+  `
+    INSERT INTO User (id, username)
+    VALUES (@id, @username)
+  `,
+  {
+    id: 3
+    username: 'newUsername',
+  }
+);
+
+console.log(result.affectedRows); // 1
+console.log(result.insertId); // 3
+console.log(result.changedRows); // 0
+```
+
 ### getOne
 
 ```typescript
@@ -91,6 +137,7 @@ const data: User = await database.getOne<User>(
         User
     WHERE
         id = @id
+    LIMIT 1
 `,
   {
     id: 1,
@@ -111,6 +158,7 @@ const username: string = database.getValue<User, 'username'>(
         User
     WHERE
         id = @id
+    LIMIT 1
 `,
   {
     id: 1,
@@ -127,6 +175,7 @@ const exists: boolean = await database.exists<User>(
     SELECT *
     FROM User
     WHERE id = @id
+    LIMIT 1
 `,
   {
     id: 1,
@@ -134,4 +183,18 @@ const exists: boolean = await database.exists<User>(
 );
 
 console.log(userExists); // true
+```
+
+## Testing
+
+### Unit Tests
+
+```bash
+npm run test
+```
+
+### Functional Tests
+
+```bash
+CONNECTION_STRING=<TEST DATABASE CONNECTION STRING> ./node_modules/.bin/jest functional-tests/**/*.test.ts --runInBand
 ```

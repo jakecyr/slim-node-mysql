@@ -29,11 +29,10 @@ jobs:
       - run: npm install
       - run: git reset --hard HEAD
       - run: npm run build
-      - run: git status
       - run: git config --global user.name '${{ github.event.release.author.login }}'
       - run: git config --global user.email '${{ github.event.release.author.email }}'
       - run: npm version ${{ github.event.release.tag_name }} --no-git-tag-version
-      - run: git add package.json
+      - run: git add .
       - run: git commit -m "Change version to ${{ github.event.release.tag_name }}"
       - run: npm publish
         env:

@@ -18,7 +18,7 @@
     "prepack": "tsc",
     "build": "tsc",
     "build-watch": "tsc -w",
-    "test": "jest",
+    "test": "jest tests/**/*.ts",
     "prettify": "prettier --write ."
   },
   "author": "Jake Cyr",

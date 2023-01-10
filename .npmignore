@@ -2,8 +2,10 @@ src
 tsconfig.json
 .gitignore
 tests
+functional-tests
 .prettierrc
 .npmignore
 examples
 babel.config.js
 __mocks__
+coverage
